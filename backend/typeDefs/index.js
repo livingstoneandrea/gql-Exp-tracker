@@ -1,11 +1,9 @@
-import {mergeResolvers} from '@graphql-tools/merge'
+import { mergeTypeDefs } from "@graphql-tools/merge";
 
-import userTypeDef from './user.typeDef.js'
-import transactionTypeDef from './transaction.typeDef.js'
+// typeDefs
+import userTypeDef from "./user.typeDef.js";
+import transactionTypeDef from "./transaction.typeDef.js";
 
+const mergedTypeDefs = mergeTypeDefs([userTypeDef, transactionTypeDef]);
 
-const typeDefs = [userTypeDef,].filter(Boolean)
-// console.log(typeDefs)
-const mergedTypeDefs = mergeResolvers(typeDefs)
-
-export default mergedTypeDefs
+export default mergedTypeDefs;
