@@ -4,8 +4,7 @@ import userResolver from './user.resolver.js'
 import transactionResolver from './transaction.resolver.js'
 
 
-const resolvers = [userResolver, transactionResolver].filter(Boolean); // Removes undefined or null values
-// console.log('Resolvers:', resolvers);
+const resolvers = [userResolver, transactionResolver].filter(Boolean);
 
 const mergedResolvers = mergeResolvers(resolvers)
 
