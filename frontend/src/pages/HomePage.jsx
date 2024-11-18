@@ -20,7 +20,7 @@ const HomePage = () => {
 	});
 
 	const {data} = useQuery(GET_TRANSACTION_STATISTICS);
-	console.log("transaction data", data)
+	
 	const {data: authUserData} = useQuery(GET_AUTHENTICATED_USER);
 
 
