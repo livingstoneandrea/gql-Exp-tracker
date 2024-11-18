@@ -1,13 +1,14 @@
-import { ApolloServer } from "@apollo/server"
-import { expressMiddleware } from '@apollo/server/express4';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-
-import {GraphQLLocalStrategy, buildContext} from 'graphql-passport'
-
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import dotenv from 'dotenv'
+import path from "path";
+
+import { ApolloServer } from "@apollo/server"
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+
+import { buildContext} from 'graphql-passport'
 
 import passport from 'passport'
 import session from 'express-session'
@@ -19,8 +20,11 @@ import mergedTypeDefs from "./typeDefs/index.js"
 import { connectDB } from "./db/connectDB.js";
 import { configurePassport } from "./passport/passport.config.js";
 
+
 dotenv.config();
 configurePassport()
+
+const __dirname = path.resolve()
 
 const app = express();
 
@@ -36,7 +40,7 @@ const store = new MongoDBStore({
 store.on("error", (err)=> console.log(err))
 
 app.use(session({
-    session: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie:{
@@ -72,6 +76,12 @@ app.use(
     }),
   );
   
+  //npm run build to get optimized version of the app
+  app.use(express.static(path.join(__dirname, "frontend/dist")));
+
+  app.get("*", (req, res)=>{
+    res.sendFile(path.join(__dirname, "frontend/dist", "index.html"))
+  })
 
   await new Promise((resolve) =>
     httpServer.listen({ port: 4000 }, resolve),

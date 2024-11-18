@@ -1,9 +1,10 @@
 
 import Transaction from "../models/transaction.model.js";
+import User from "../models/user.model.js";
 
 const transactionResolver = {
     Query: {
-        transactions: async (context)=>{
+        transactions: async (_,__, context)=>{
             try {
                 if (!context.getUser()) throw new Error("Unauthorized");
 
@@ -20,7 +21,7 @@ const transactionResolver = {
                 
             }
         },
-        transaction: async (_, {transactionId},)=>{
+        transaction: async (_, {transactionId})=>{
             try {
                 
                 const transaction = await Transaction.findById(transactionId)
@@ -29,6 +30,26 @@ const transactionResolver = {
                 console.error("Error getting transaction: ", err);
                 throw new Error("Error getting transaction")
             }
+        },
+        categoryStatistics: async (_parent, _args, context)=>{
+            console.log(context.getUser()._id)
+            if (!context.getUser()) throw new Error("Unauthorized");
+
+
+            const userId = context.getUser()._id
+            const transactions = await Transaction.find({userId});
+
+            const categoryMap = {}
+
+            transactions.forEach((transaction)=> {
+                if (!categoryMap[transaction.category]) {
+                    categoryMap[transaction.category] = 0
+                }
+                categoryMap[transaction.category] += transaction.amount
+            })
+    
+            return Object.entries(categoryMap).map(([category, totalAmount])=>({category, totalAmount}))
+
         }
 
     },
@@ -47,7 +68,7 @@ const transactionResolver = {
                 throw new Error("Error creating transaction")
             }
         },
-        updateTransaction: async (_parent, {input}, _context)=>{
+        updateTransaction: async (_parent, {input})=>{
              
             try {
                 const updateTransaction = await Transaction.findByIdAndUpdate(input.transactionId,input, {new: true})
@@ -58,7 +79,7 @@ const transactionResolver = {
                 throw new Error("Error updating transaction")
             }
         },
-        deleteTransaction: async (_parent, {transactionId}, _context)=>{
+        deleteTransaction: async (_parent, {transactionId})=>{
             try {
                 const deleteTransaction = await Transaction.findByIdAndDelete(transactionId)
 
@@ -70,6 +91,21 @@ const transactionResolver = {
         },
 
     },
+
+    Transaction:{
+        user: async(parent)=>{
+            const userId = parent.userId
+            try {
+                const user = await User.findById(userId)
+                return user;
+            } catch (err) {
+                console.error("Error getting user:", err);
+                throw new Error("Error getting user")
+            }
+        }
+    }
+
+
 }
 
 export default transactionResolver

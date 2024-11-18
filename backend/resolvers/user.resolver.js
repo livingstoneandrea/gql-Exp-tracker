@@ -1,9 +1,11 @@
 
+import Transaction from '../models/transaction.model.js'
 import User from '../models/user.model.js'
+import bcrypt from "bcryptjs"
 
 const userResolver = {
     Query: {
-        authUser:async (_parent, _args,context)=>{
+        authUser:async (_, __,context)=>{
             try {
                 const user = await context.getUser()
                 return user
@@ -13,7 +15,7 @@ const userResolver = {
                 
             }
         },
-        user:async (_,_args, {userId},)=>{
+        user:async (_,{userId})=>{
             try {
                 const user = await User.findById(userId)
                 return user
@@ -22,9 +24,20 @@ const userResolver = {
                 throw new Error( err.message ||"Error in getting user");
             }
             
+        },
+      
+    },
+    User: {
+        transactions: async (parent) => {
+            try {
+                const transactions = await Transaction.find({userId: parent._id})
+                return transactions
+            } catch (err) {
+                console.log("Error in user.transaction resolver: ", err);
+                throw new Error(err.message || "Internal server error") 
+            }
         }
-        //Todo => add user / transaction relations
-
+        
     },
 
     Mutation:{
@@ -84,10 +97,10 @@ const userResolver = {
             try {
                 await context.logout()
                 context.req.session.destroy((err)=>{
-                    if (err) throw new Error(err.message)
+                    if (err) throw new err
                 })
                 context.res.clearCookies("connect.sid")
-                return {message: "Log out successfully"}
+                return {message: "Logged out successfully"}
 
             } catch (err) {
                 console.error("Error in logout:", err);

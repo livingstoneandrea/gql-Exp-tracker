@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { GET_TRANSACTION } from "../graphql/queries/transaction.query";
+import { GET_TRANSACTION, GET_TRANSACTION_STATISTICS } from "../graphql/queries/transaction.query";
 import { UPDATE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
 import toast from "react-hot-toast";
 import TransactionFormSkeleton from "../components/skeletons/TransactionFormSkeleton"
@@ -9,20 +9,23 @@ import TransactionFormSkeleton from "../components/skeletons/TransactionFormSkel
 const TransactionPage = () => {
 	const {id} = useParams();
 
-	console.log(id);
 	const{loading, data} = useQuery(GET_TRANSACTION, {
 		variables: {id: id}
 	})
+
+	console.log("Transactions",data)
 	
-	const[updateTransaction, {loading: loadingUpdate}] = useMutation(UPDATE_TRANSACTION)
+	const[updateTransaction, {loading: loadingUpdate}] = useMutation(UPDATE_TRANSACTION,{
+		refetchQueries:[{query: GET_TRANSACTION_STATISTICS}]
+	})
 
 	const [formData, setFormData] = useState({
-		description: data.tranaction?.description || "",
-		paymentType: data.tranaction?.paymentType || "",
-		category: data.tranaction?.category || "",
-		amount: data.tranaction?.amount || "",
-		location: data.tranaction?.location || "",
-		date: data.tranaction?.date || "",
+		description: data?.transaction?.description || "",
+		paymentType: data?.transaction?.paymentType || "",
+		category: data?.transaction?.category || "",
+		amount: data?.transaction?.amount || "",
+		location: data?.transaction?.location || "",
+		date: data?.transaction?.date || "",
 	});
 
 	const handleSubmit = async (e) => {
@@ -48,12 +51,12 @@ const TransactionPage = () => {
 	useEffect(()=>{
 		if(data){
 			setFormData({
-				description: data.tranaction?.description,
-				paymentType: data.tranaction?.paymentType ,
-				category: data.tranaction?.category,
-				amount: data.tranaction?.amount ,
-				location: data.tranaction?.location,
-				date: new Date(+data.tranaction?.date).toISOString().substring(0, 10) ,
+				description: data?.transaction?.description,
+				paymentType: data?.transaction?.paymentType ,
+				category: data?.transaction?.category,
+				amount: data?.transaction?.amount ,
+				location: data?.transaction?.location,
+				date: new Date(+data?.transaction?.date).toISOString().substring(0, 10) ,
 			})
 		}
 	}, [data])

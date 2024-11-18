@@ -8,16 +8,17 @@ export const SIGN_UP = gql`
             username
         }
     }
-`
+`;
+
 export const LOGIN = gql`
     mutation Login($input: LoginInput!) {
-        logout(input: $input) {
+        login(input: $input) {
             _id
             name
             username
         }
     }
-`
+`;
 
 export const LOGOUT = gql`
     mutation Logout {
@@ -25,4 +26,4 @@ export const LOGOUT = gql`
             message
         }
     }
-`
+`;

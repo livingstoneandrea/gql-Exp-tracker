@@ -9,14 +9,14 @@ export const GET_TRANSACTIONS = gql`
             category
             amount
             location
-            data
+            date
         }
     }
 `
 
 export const GET_TRANSACTION = gql`
-    query GetTransactions($id: ID!){
-        transactions(transactionsId: $id){
+    query GetTransaction($id: ID!){
+        transaction(transactionId: $id){
             _id
             description
             paymentType
@@ -24,6 +24,20 @@ export const GET_TRANSACTION = gql`
             amount
             location
             date
+            user{
+                name
+                username
+                profilePicture
+            }
+        }
+    }
+`
+
+export const GET_TRANSACTION_STATISTICS = gql`
+    query GetTransactionStatistics{
+        categoryStatistics{
+            category
+            totalAmount
         }
     }
 `
