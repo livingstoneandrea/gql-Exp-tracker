@@ -3,7 +3,7 @@ import User from '../models/user.model.js'
 
 const userResolver = {
     Query: {
-        authUser:async (context)=>{
+        authUser:async (_parent, _args,context)=>{
             try {
                 const user = await context.getUser()
                 return user
@@ -13,7 +13,7 @@ const userResolver = {
                 
             }
         },
-        user:async (_, {userId},)=>{
+        user:async (_,_args, {userId},)=>{
             try {
                 const user = await User.findById(userId)
                 return user
@@ -68,7 +68,7 @@ const userResolver = {
         login: async (_, {input}, context) =>{
             try {
                 const {username, password} = input;
-
+                if(!username || !password) throw new Error("All fields are required")
                 const {user} = await context.authenticate("graphql-local", {username, password})
 
                 await context.login(user)
@@ -80,13 +80,13 @@ const userResolver = {
                 
             }
         },
-        logout: async ( context)=>{
+        logout: async (_parent, _args, context)=>{
             try {
                 await context.logout()
-                req.session.destroy((err)=>{
+                context.req.session.destroy((err)=>{
                     if (err) throw new Error(err.message)
                 })
-                res.clearCookies("connect.sid")
+                context.res.clearCookies("connect.sid")
                 return {message: "Log out successfully"}
 
             } catch (err) {
